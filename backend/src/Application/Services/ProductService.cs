@@ -4,6 +4,7 @@ using Infrastructure.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using System.Linq.Expressions;
+using Application.DTOs.Product;
 
 namespace Application.Services
 {
@@ -20,104 +21,119 @@ namespace Application.Services
             _mapper = mapper;
         }
 
-        public Task<Product> AddAsync(Product product)
-        {
-            throw new NotImplementedException();
+        public async Task<ProductDto> AddAsync(ProductDto product)
+        {           
+            var productEntity = _mapper.Map<Product>(product);
+            var result = await _productRepository.AddAsync(productEntity);
+            return _mapper.Map<ProductDto>(result);
         }
 
-        public Task<int> CountAsync(bool includeInactive = false)
+        public async Task<int> CountAsync(bool includeInactive = false)
         {
-            throw new NotImplementedException();
+            return await _productRepository.CountAsync(includeInactive);
+        }        
+
+        public async Task DecreaseStockAsync(Guid productId, int quantity)
+        {
+            await _productRepository.DecreaseStockAsync(productId, quantity);
         }
 
-        public Task DecreaseStockAsync(Guid productId, int quantity)
+        public async Task DeleteAsync(ProductDto product)
         {
-            throw new NotImplementedException();
+            await _productRepository.DeleteAsync(product);
         }
 
-        public Task DeleteAsync(Product product)
+        public async Task<bool> ExistsAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await _productRepository.ExistsAsync(id);
         }
 
-        public Task<bool> ExistsAsync(Guid id)
+        public async Task<bool> ExistsBySkuAsync(string sku)
         {
-            throw new NotImplementedException();
+            return await _productRepository.ExistsBySkuAsync(sku);
         }
 
-        public Task<bool> ExistsBySkuAsync(string sku)
+        public async Task<IEnumerable<ProductDto>> FindAsync(Expression<Func<ProductDto, bool>> predicate)
         {
-            throw new NotImplementedException();
+            // Map the predicate from ProductDto to Product
+            var productPredicate = _mapper.Map<Expression<Func<Product, bool>>>(predicate);
+
+            var products = await _productRepository.FindAsync(productPredicate);
+            return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
-        public Task<IEnumerable<Product>> FindAsync(Expression<Func<Product, bool>> predicate)
+        public async Task<IEnumerable<ProductDto>> GetActiveProductsAsync()
         {
-            throw new NotImplementedException();
+            var products = await _productRepository.GetActiveProductsAsync();
+            return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
-        public Task<IEnumerable<Product>> GetActiveProductsAsync()
+        public async Task<IEnumerable<ProductDto>> GetAllAsync(bool includeInactive = false)
         {
-            throw new NotImplementedException();
+            var products = await _productRepository.GetAllAsync(includeInactive);
+            return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
-        public Task<IEnumerable<Product>> GetAllAsync(bool includeInactive = false)
+        public async Task<IEnumerable<string>> GetAllCategoriesAsync()
         {
-            throw new NotImplementedException();
+            return await _productRepository.GetAllCategoriesAsync();
         }
 
-        public Task<IEnumerable<string>> GetAllCategoriesAsync()
-        {
-            throw new NotImplementedException();
+        public async Task<IEnumerable<ProductDto>> GetByCategoryAsync(string category)
+        {                
+            var products = await _productRepository.GetByCategoryAsync(category);
+            return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
-        public Task<IEnumerable<Product>> GetByCategoryAsync(string category)
+        public async Task<ProductDto?> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var product = await _productRepository.GetByIdAsync(id);
+            return _mapper.Map<ProductDto>(product);
         }
 
-        public Task<Product?> GetByIdAsync(Guid id)
+        public async Task<ProductDto?> GetBySkuAsync(string sku)
         {
-            throw new NotImplementedException();
+            var product = await _productRepository.GetBySkuAsync(sku);
+            return _mapper.Map<ProductDto>(product);
         }
 
-        public Task<Product?> GetBySkuAsync(string sku)
+        public async Task<IEnumerable<ProductDto>> GetLowStockProductsAsync()
         {
-            throw new NotImplementedException();
+            var products = await _productRepository.GetLowStockProductsAsync();
+            return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
-        public Task<IEnumerable<Product>> GetLowStockProductsAsync()
+        public async Task<IEnumerable<ProductDto>> GetOutOfStockProductsAsync()
         {
-            throw new NotImplementedException();
+            var products = await _productRepository.GetOutOfStockProductsAsync();
+            return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
-        public Task<IEnumerable<Product>> GetOutOfStockProductsAsync()
+        public async Task<IEnumerable<ProductDto>> GetPagedAsync(int page, int pageSize, bool includeInactive = false)
         {
-            throw new NotImplementedException();
+            var products = await _productRepository.GetPagedAsync(page, pageSize, includeInactive);
+            return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
-        public Task<IEnumerable<Product>> GetPagedAsync(int page, int pageSize, bool includeInactive = false)
+        public async Task IncreaseStockAsync(Guid productId, int quantity)
         {
-            throw new NotImplementedException();
+            await _productRepository.IncreaseStockAsync(productId, quantity);
         }
 
-        public Task IncreaseStockAsync(Guid productId, int quantity)
+        public async Task<IEnumerable<ProductDto>> SearchAsync(string searchTerm, bool includeInactive = false)
         {
-            throw new NotImplementedException();
+            var products = await _productRepository.SearchAsync(searchTerm, includeInactive);
+            return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
-        public Task<IEnumerable<Product>> SearchAsync(string searchTerm, bool includeInactive = false)
+        public async Task UpdateAsync(ProductDto product)
         {
-            throw new NotImplementedException();
+            await _productRepository.UpdateAsync(product);
         }
 
-        public Task UpdateAsync(Product product)
+        public async Task UpdateStockAsync(Guid productId, int quantity)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateStockAsync(Guid productId, int quantity)
-        {
-            throw new NotImplementedException();
+            await _productRepository.UpdateStockAsync(productId, quantity);
         }
     }
 }

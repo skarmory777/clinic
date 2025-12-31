@@ -8,6 +8,7 @@ namespace Application.Common.Mappings
     {
         public ProductProfile()
         {
+            // Entity -> DTO (LEITURA)
             CreateMap<Product, ProductDto>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description ?? string.Empty))
                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category ?? string.Empty))
@@ -20,6 +21,23 @@ namespace Application.Common.Mappings
                     dest.IsLowStock = src.IsLowStock();
                     dest.IsOutOfStock = src.IsOutOfStock();
                 });
+
+            // DTO -> Entity (ESCRITA)
+            CreateMap<ProductDto, Product>()
+                .ConstructUsing(dto => new Product(
+                    dto.Sku,
+                    dto.Name,
+                    dto.UnitPrice,
+                    dto.StockQuantity,
+                    dto.Category,
+                    dto.Description,
+                    dto.CostPrice,
+                    dto.TaxRate,
+                    dto.UnitOfMeasure,
+                    dto.MinStockLevel,
+                    dto.ReorderQuantity,
+                    dto.Notes
+                ));
         }
     }
 }

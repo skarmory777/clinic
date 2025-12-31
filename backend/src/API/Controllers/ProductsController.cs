@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Application.DTOs.Product;
-//using Application.Features.Products.Commands;
-//using Application.Features.Products.Queries;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Application.Interfaces;
 
 namespace API.Controllers
 {
@@ -13,63 +11,48 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly IMediator _mediator;
+        private readonly IProductService _productService;
 
-        public ProductsController(IMediator mediator)
+        public ProductsController(IProductService productService)
         {
-            _mediator = mediator;
+            _productService = productService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll(
             [FromQuery] bool includeInactive = false)
         {
-            //var query = new GetAllProductsQuery { IncludeInactive = includeInactive };
-            //var result = await _mediator.Send(query);
-            //return Ok(result);
-            return Ok();
+            var products = await _productService.GetActiveProductsAsync();
+            return Ok(products);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductDto>> GetById(Guid id)
         {
-            //var query = new GetProductByIdQuery { Id = id };
-            //var result = await _mediator.Send(query);
-            //return Ok(result);
-            return Ok();
+            var product = await _productService.GetByIdAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return Ok(product);
         }
 
         [HttpGet("sku/{sku}")]
         public async Task<ActionResult<ProductDto>> GetBySku(string sku)
         {
-            //var query = new GetProductBySkuQuery { Sku = sku };
-            //var result = await _mediator.Send(query);
-            //return Ok(result);
-            return Ok();
+            var product = await _productService.GetBySkuAsync(sku);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return Ok(product);
         }
 
         [HttpPost]
         public async Task<ActionResult<ProductDto>> Create([FromBody] ProductDto createProductDto)
         {
-            //var command = new CreateProductCommand
-            //{
-            //    Sku = createProductDto.Sku,
-            //    Name = createProductDto.Name,
-            //    Description = createProductDto.Description,
-            //    Category = createProductDto.Category,
-            //    UnitPrice = createProductDto.UnitPrice,
-            //    CostPrice = createProductDto.CostPrice,
-            //    TaxRate = createProductDto.TaxRate,
-            //    UnitOfMeasure = createProductDto.UnitOfMeasure,
-            //    StockQuantity = createProductDto.StockQuantity,
-            //    MinStockLevel = createProductDto.MinStockLevel,
-            //    ReorderQuantity = createProductDto.ReorderQuantity,
-            //    Notes = createProductDto.Notes
-            //};
-//
-            //var result = await _mediator.Send(command);
-            //return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
-            return Ok();
+            var createProduct = await _productService.AddAsync(createProductDto);
+            return CreatedAtAction(nameof(GetById), new { id = createProduct.Id }, createProduct);  
         }
 
         [HttpPut("{id}")]
@@ -77,31 +60,14 @@ namespace API.Controllers
             Guid id, 
             [FromBody] ProductDto updateProductDto)
         {
-            //var command = new UpdateProductCommand
-            //{
-            //    Id = id,
-            //    Name = updateProductDto.Name,
-            //    Description = updateProductDto.Description,
-            //    Category = updateProductDto.Category,
-            //    UnitPrice = updateProductDto.UnitPrice,
-            //    CostPrice = updateProductDto.CostPrice,
-            //    TaxRate = updateProductDto.TaxRate,
-            //    UnitOfMeasure = updateProductDto.UnitOfMeasure,
-            //    MinStockLevel = updateProductDto.MinStockLevel,
-            //    ReorderQuantity = updateProductDto.ReorderQuantity,
-            //    Notes = updateProductDto.Notes
-            //};
-//
-            //var result = await _mediator.Send(command);
-            //return Ok(result);
+            await _productService.UpdateAsync(updateProductDto);
             return Ok();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            //var command = new DeleteProductCommand { Id = id };
-            //await _mediator.Send(command);
+            await _productService.DeleteAsync(new ProductDto { Id = id });
             return NoContent();
         }
 
@@ -110,24 +76,18 @@ namespace API.Controllers
             Guid id, 
             [FromBody] UpdateStockDto updateStockDto)
         {
-            //var command = new UpdateStockCommand
-            //{
-            //    ProductId = id,
-            //    Quantity = updateStockDto.Quantity,
-            //    Operation = updateStockDto.Operation
-            //};
-//
-            //var result = await _mediator.Send(command);
-            //return Ok(result);
+            await _productService.UpdateStockAsync(id, updateStockDto.Quantity);
             return Ok();
         }
 
         [HttpPatch("{id}/activate")]
         public async Task<ActionResult<ProductDto>> Activate(Guid id)
         {
-            //var command = new ActivateProductCommand { Id = id };
-            //var result = await _mediator.Send(command);
-            //return Ok(result);
+            var product = await _productService.GetByIdAsync(id);
+            if (product == null)
+            {
+                return NotFound();  
+            }
             return Ok();
         }
 
@@ -163,32 +123,22 @@ namespace API.Controllers
             [FromQuery] string term,
             [FromQuery] bool includeInactive = false)
         {
-            //var query = new SearchProductsQuery 
-            //{ 
-            //    SearchTerm = term,
-            //    IncludeInactive = includeInactive 
-            //};
-            //var result = await _mediator.Send(query);
-            //return Ok(result);
-            return Ok();
+            var products = await _productService.SearchAsync(term, includeInactive);
+            return Ok(products);
         }
 
         [HttpGet("categories")]
         public async Task<ActionResult<IEnumerable<string>>> GetCategories()
         {
-            //var query = new GetProductCategoriesQuery();
-            //var result = await _mediator.Send(query);
-            //return Ok(result);
-            return Ok();
+            var categories = await _productService.GetAllCategoriesAsync();
+            return Ok(categories);    
         }
 
         [HttpGet("category/{category}")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetByCategory(string category)
         {
-            //var query = new GetProductsByCategoryQuery { Category = category };
-            //var result = await _mediator.Send(query);
-            //return Ok(result);
-            return Ok();
+            var products = await _productService.GetByCategoryAsync(category);
+            return Ok(products);
         }
     }
 }

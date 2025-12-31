@@ -2,30 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Application.DTOs.Product;
 using Domain.Entities;
 
 namespace Application.Interfaces
 {
     public interface IProductService
     {
-        Task<Product?> GetByIdAsync(Guid id);
-        Task<Product?> GetBySkuAsync(string sku);
-        Task<IEnumerable<Product>> GetAllAsync(bool includeInactive = false);
-        Task<IEnumerable<Product>> GetPagedAsync(int page, int pageSize, bool includeInactive = false);
-        Task<IEnumerable<Product>> FindAsync(Expression<Func<Product, bool>> predicate);
-        Task<Product> AddAsync(Product product);
-        Task UpdateAsync(Product product);
-        Task DeleteAsync(Product product);
+        Task<ProductDto?> GetByIdAsync(Guid id);
+        Task<ProductDto?> GetBySkuAsync(string sku);
+        Task<IEnumerable<ProductDto>> GetAllAsync(bool includeInactive = false);
+        Task<IEnumerable<ProductDto>> GetPagedAsync(int page, int pageSize, bool includeInactive = false);
+        Task<IEnumerable<ProductDto>> FindAsync(Expression<Func<ProductDto, bool>> predicate);
+        Task<ProductDto> AddAsync(ProductDto product);
+        Task UpdateAsync(ProductDto product);
+        Task DeleteAsync(ProductDto product);
         Task<bool> ExistsAsync(Guid id);
         Task<bool> ExistsBySkuAsync(string sku);
         Task<int> CountAsync(bool includeInactive = false);
         
         // Business-specific queries
-        Task<IEnumerable<Product>> GetLowStockProductsAsync();
-        Task<IEnumerable<Product>> GetOutOfStockProductsAsync();
-        Task<IEnumerable<Product>> GetActiveProductsAsync();
-        Task<IEnumerable<Product>> SearchAsync(string searchTerm, bool includeInactive = false);
-        Task<IEnumerable<Product>> GetByCategoryAsync(string category);
+        Task<IEnumerable<ProductDto>> GetLowStockProductsAsync();
+        Task<IEnumerable<ProductDto>> GetOutOfStockProductsAsync();
+        Task<IEnumerable<ProductDto>> GetActiveProductsAsync();
+        Task<IEnumerable<ProductDto>> SearchAsync(string searchTerm, bool includeInactive = false);
+        Task<IEnumerable<ProductDto>> GetByCategoryAsync(string category);
         Task<IEnumerable<string>> GetAllCategoriesAsync();
         
         // Stock operations
